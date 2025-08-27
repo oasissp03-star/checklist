@@ -69,6 +69,14 @@
             padding: 4px;
             border-radius: 4px;
         }
+        /* Style for the major category separator */
+        .major-category-separator {
+            background-color: #e5e7eb;
+            font-weight: bold;
+            text-align: left;
+            padding: 8px 16px;
+            border-top: 2px solid #9ca3af;
+        }
     </style>
 </head>
 <body class="p-8">
@@ -136,7 +144,6 @@
                 </tfoot>
             </table>
         </div>
-        
         <p class="text-xs text-gray-500 mt-4">참고: 이 문서는 PDF 파일에 명시되지 않은 'SCORE' 열에 임의로 3점을 부여했습니다. 실제 중요도에 맞게 점수를 변경하여 사용하세요.</p>
     </div>
 
@@ -221,24 +228,62 @@
         const totalPossibleScoreCell = document.getElementById('total-possible-score-cell');
         const dateRange = ['2025-08-26', '2025-08-27', '2025-08-28', '2025-08-29', '2025-08-30', '2025-08-31', '2025-09-01', '2025-09-02', '2025-09-03', '2025-09-04', '2025-09-05'];
 
-        // 체크리스트 항목을 렌더링합니다.
-        function renderChecklist() {
+        let checklistState = [];
+
+        // Function to save data to localStorage
+        function saveData() {
+            localStorage.setItem('coffee_checklist', JSON.stringify(checklistState));
+        }
+
+        // Function to load data from localStorage
+        function loadData() {
+            const savedData = localStorage.getItem('coffee_checklist');
+            if (savedData) {
+                try {
+                    checklistState = JSON.parse(savedData);
+                } catch (e) {
+                    console.error("Failed to parse saved data:", e);
+                    initializeData();
+                }
+            } else {
+                initializeData();
+            }
+        }
+
+        // Function to render the checklist table from a given state
+        function renderChecklist(data) {
             checklistBody.innerHTML = '';
-            checklistData.forEach(item => {
+            let currentCategory = '';
+            data.forEach((item, index) => {
+                // Check if the major category has changed
+                const majorCategory = item.카테고리.split('.')[0];
+                if (majorCategory !== currentCategory) {
+                    currentCategory = majorCategory;
+                    const separatorRow = document.createElement('tr');
+                    separatorRow.innerHTML = `
+                        <td colspan="${dateRange.length + 3}" class="major-category-separator text-gray-900">${item.카테고리.split(' ')[0]}</td>
+                    `;
+                    checklistBody.appendChild(separatorRow);
+                }
+
                 const row = document.createElement('tr');
                 row.className = 'bg-white hover:bg-gray-50 transition-colors duration-200';
                 row.innerHTML = `
                     <td class="px-6 py-4 category-cell font-medium text-gray-900">${item.카테고리}</td>
                     <td class="px-6 py-4 task-cell text-gray-700">${item.TASK}</td>
-                    <td class="px-6 py-4 score-cell"><input type="number" value="3" min="1" max="5" class="score-input" onchange="calculateTotals()"></td>
-                    ${dateRange.map(date => `<td class="px-6 py-4 yn-cell" data-date="${date}" data-status="N">N</td>`).join('')}
+                    <td class="px-6 py-4 score-cell"><input type="number" value="${item.SCORE}" min="1" max="5" class="score-input" data-index="${index}"></td>
+                    ${dateRange.map(date => {
+                        const status = item.dates[date] || 'N';
+                        const isChecked = status === 'Y' ? 'checked' : '';
+                        return `<td class="px-6 py-4 yn-cell ${isChecked}" data-date="${date}" data-status="${status}" data-index="${index}">${status}</td>`;
+                    }).join('')}
                 `;
                 checklistBody.appendChild(row);
             });
-            calculateTotals(); // 초기 렌더링 후 총점 계산
+            calculateTotals();
         }
 
-        // 총점과 백분율을 계산하는 함수입니다.
+        // Function to calculate totals and percentages
         function calculateTotals() {
             let totalPossibleScore = 0;
             const scoreInputs = document.querySelectorAll('.score-input');
@@ -253,17 +298,15 @@
                 const completedTasks = document.querySelectorAll(`td[data-date="${date}"][data-status="Y"]`);
                 
                 completedTasks.forEach(cell => {
-                    const scoreInput = cell.parentNode.querySelector('.score-input');
-                    dailyScore += parseInt(scoreInput.value) || 0;
+                    const index = cell.dataset.index;
+                    dailyScore += parseInt(checklistState[index].SCORE) || 0;
                 });
                 
-                // 총점 업데이트
                 const totalScoreCell = document.getElementById(`total-score-${date}`);
                 if (totalScoreCell) {
                     totalScoreCell.textContent = dailyScore;
                 }
 
-                // 백분율 업데이트
                 const percentageCell = document.getElementById(`percentage-${date}`);
                 if (percentageCell) {
                     const percentage = totalPossibleScore > 0 ? (dailyScore / totalPossibleScore) * 100 : 0;
@@ -272,27 +315,54 @@
             });
         }
 
-        // 'Y/N' 셀 클릭 이벤트 핸들러입니다.
+        // Click event listener for Y/N cells
         checklistBody.addEventListener('click', (e) => {
             const cell = e.target.closest('.yn-cell');
             if (cell) {
-                const currentStatus = cell.getAttribute('data-status');
-                if (currentStatus === 'N') {
-                    cell.setAttribute('data-status', 'Y');
+                const index = cell.dataset.index;
+                const date = cell.dataset.date;
+                const newStatus = cell.getAttribute('data-status') === 'N' ? 'Y' : 'N';
+                
+                checklistState[index].dates[date] = newStatus;
+                cell.setAttribute('data-status', newStatus);
+                if (newStatus === 'Y') {
                     cell.textContent = 'Y';
                     cell.classList.add('checked');
                 } else {
-                    cell.setAttribute('data-status', 'N');
                     cell.textContent = 'N';
                     cell.classList.remove('checked');
                 }
                 calculateTotals();
+                saveData(); // Save data after every change
             }
         });
 
-        // 페이지 로드 시 체크리스트를 렌더링합니다.
-        window.onload = renderChecklist;
+        // Change event listener for score inputs
+        checklistBody.addEventListener('change', (e) => {
+            const input = e.target.closest('.score-input');
+            if (input) {
+                const index = input.dataset.index;
+                const newScore = parseInt(input.value) || 0;
+                
+                checklistState[index].SCORE = newScore;
+                calculateTotals();
+                saveData(); // Save data after every change
+            }
+        });
+
+        // Function to initialize data
+        function initializeData() {
+            checklistState = checklistData.map(item => ({
+                ...item,
+                SCORE: 3,
+                dates: dateRange.reduce((acc, date) => ({ ...acc, [date]: 'N' }), {})
+            }));
+            saveData();
+            renderChecklist(checklistState);
+        }
+
+        // 페이지 로드 시 데이터를 불러옵니다.
+        window.onload = loadData;
     </script>
 </body>
 </html>
-
