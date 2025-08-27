@@ -69,7 +69,6 @@
             padding: 4px;
             border-radius: 4px;
         }
-        /* Style for the major category separator */
         .major-category-separator {
             background-color: #e5e7eb;
             font-weight: bold;
@@ -77,13 +76,19 @@
             padding: 8px 16px;
             border-top: 2px solid #9ca3af;
         }
+        .memo-cell {
+            white-space: normal;
+            word-wrap: break-word;
+            min-width: 150px;
+        }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.min.js"></script>
 </head>
 <body class="p-8">
 
-    <div class="container mx-auto">
+    <div id="pdf-content" class="container mx-auto">
         <h1 class="text-3xl font-bold mb-2">호걸커피 오픈 준비 체크리스트</h1>
-        <p class="text-gray-600 mb-6">각 항목의 'Y/N'을 클릭하여 진행 상황을 체크하고, 하단의 총점과 백분율을 확인하세요. 점수 항목을 직접 수정하여 중요도를 조절할 수 있습니다.</p>
+        <p class="text-gray-600 mb-6">각 항목의 'Y/N'을 클릭하여 진행 상황을 체크하고, 하단의 총점과 백분율을 확인하세요. 점수 항목과 메모를 직접 수정할 수 있습니다.</p>
 
         <div class="overflow-x-auto table-container rounded-lg">
             <table class="w-full text-sm text-left text-gray-500">
@@ -91,6 +96,7 @@
                     <tr>
                         <th scope="col" class="py-3 px-6 rounded-tl-lg category-cell">카테고리</th>
                         <th scope="col" class="py-3 px-6 task-cell">TASK</th>
+                        <th scope="col" class="py-3 px-6 memo-cell">메모</th>
                         <th scope="col" class="py-3 px-6 score-cell">SCORE</th>
                         <th scope="col" class="py-3 px-6 yn-cell">8월 26일</th>
                         <th scope="col" class="py-3 px-6 yn-cell">8월 27일</th>
@@ -111,7 +117,7 @@
                 <tfoot>
                     <tr class="summary-row">
                         <td class="total-score-cell rounded-bl-lg">총점</td>
-                        <td></td>
+                        <td colspan="2"></td>
                         <td class="score-cell"></td>
                         <td class="total-score-cell" id="total-score-2025-08-26">0</td>
                         <td class="total-score-cell" id="total-score-2025-08-27">0</td>
@@ -127,7 +133,7 @@
                     </tr>
                     <tr class="summary-row">
                         <td class="percentage-cell rounded-bl-lg">백분율 (%)</td>
-                        <td></td>
+                        <td colspan="2"></td>
                         <td id="total-possible-score-cell" class="score-cell"></td>
                         <td class="percentage-cell" id="percentage-2025-08-26">0.00%</td>
                         <td class="percentage-cell" id="percentage-2025-08-27">0.00%</td>
@@ -145,6 +151,12 @@
             </table>
         </div>
         <p class="text-xs text-gray-500 mt-4">참고: 이 문서는 PDF 파일에 명시되지 않은 'SCORE' 열에 임의로 3점을 부여했습니다. 실제 중요도에 맞게 점수를 변경하여 사용하세요.</p>
+    </div>
+    
+    <div class="mt-8 flex justify-center">
+        <button id="savePdfBtn" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-colors duration-200">
+            PDF로 저장
+        </button>
     </div>
 
     <script>
@@ -240,7 +252,14 @@
             const savedData = localStorage.getItem('coffee_checklist');
             if (savedData) {
                 try {
-                    checklistState = JSON.parse(savedData);
+                    const parsedData = JSON.parse(savedData);
+                    // Check for data integrity: if parsed data is not an array or has a different length
+                    if (Array.isArray(parsedData) && parsedData.length === checklistData.length) {
+                        checklistState = parsedData;
+                    } else {
+                        // If data is corrupt or incomplete, re-initialize
+                        initializeData();
+                    }
                 } catch (e) {
                     console.error("Failed to parse saved data:", e);
                     initializeData();
@@ -248,20 +267,20 @@
             } else {
                 initializeData();
             }
+            renderChecklist(checklistState);
         }
 
         // Function to render the checklist table from a given state
         function renderChecklist(data) {
             checklistBody.innerHTML = '';
-            let currentCategory = '';
+            let currentMajorCategory = '';
             data.forEach((item, index) => {
-                // Check if the major category has changed
                 const majorCategory = item.카테고리.split('.')[0];
-                if (majorCategory !== currentCategory) {
-                    currentCategory = majorCategory;
+                if (majorCategory !== currentMajorCategory) {
+                    currentMajorCategory = majorCategory;
                     const separatorRow = document.createElement('tr');
                     separatorRow.innerHTML = `
-                        <td colspan="${dateRange.length + 3}" class="major-category-separator text-gray-900">${item.카테고리.split(' ')[0]}</td>
+                        <td colspan="${dateRange.length + 4}" class="major-category-separator text-gray-900">${majorCategory}</td>
                     `;
                     checklistBody.appendChild(separatorRow);
                 }
@@ -271,6 +290,9 @@
                 row.innerHTML = `
                     <td class="px-6 py-4 category-cell font-medium text-gray-900">${item.카테고리}</td>
                     <td class="px-6 py-4 task-cell text-gray-700">${item.TASK}</td>
+                    <td class="px-6 py-4 memo-cell">
+                        <textarea class="w-full h-12 text-sm border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-gray-800" data-index="${index}">${item.memo || ''}</textarea>
+                    </td>
                     <td class="px-6 py-4 score-cell"><input type="number" value="${item.SCORE}" min="1" max="5" class="score-input" data-index="${index}"></td>
                     ${dateRange.map(date => {
                         const status = item.dates[date] || 'N';
@@ -336,7 +358,7 @@
                 saveData(); // Save data after every change
             }
         });
-
+        
         // Change event listener for score inputs
         checklistBody.addEventListener('change', (e) => {
             const input = e.target.closest('.score-input');
@@ -350,16 +372,39 @@
             }
         });
 
+        // Change event listener for memo textarea
+        checklistBody.addEventListener('input', (e) => {
+            const textarea = e.target.closest('textarea');
+            if (textarea) {
+                const index = textarea.dataset.index;
+                const newMemo = textarea.value;
+                
+                checklistState[index].memo = newMemo;
+                saveData(); // Save data after every change
+            }
+        });
+
         // Function to initialize data
         function initializeData() {
             checklistState = checklistData.map(item => ({
                 ...item,
                 SCORE: 3,
+                memo: '',
                 dates: dateRange.reduce((acc, date) => ({ ...acc, [date]: 'N' }), {})
             }));
-            saveData();
-            renderChecklist(checklistState);
         }
+
+        // Event listener for PDF save button
+        document.getElementById('savePdfBtn').addEventListener('click', () => {
+            const element = document.getElementById('pdf-content');
+            const options = {
+                filename: '호걸커피_오픈_준비_체크리스트.pdf',
+                margin: 10,
+                html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+            html2pdf().set(options).from(element).save();
+        });
 
         // 페이지 로드 시 데이터를 불러옵니다.
         window.onload = loadData;
