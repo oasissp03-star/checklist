@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>호걸커피 오픈 준비 체크리스트</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 1400px;
+        }
+        .table-container {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            white-space: nowrap;
+        }
+        th {
+            background-color: #1f2937;
+            color: #f9fafb;
+            font-weight: 600;
+            text-align: center;
+        }
+        td {
+            background-color: #ffffff;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .category-cell {
+            white-space: normal;
+            word-wrap: break-word;
+            min-width: 120px;
+        }
+        .task-cell {
+            white-space: normal;
+            word-wrap: break-word;
+            min-width: 250px;
+            text-align: left;
+        }
+        .score-cell, .yn-cell, .total-score-cell, .percentage-cell {
+            text-align: center;
+        }
+        .summary-row td {
+            font-weight: bold;
+            background-color: #f3f4f6;
+        }
+        .yn-cell {
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .yn-cell:hover {
+            background-color: #e5e7eb;
+        }
+        .yn-cell.checked {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .score-input {
+            width: 100%;
+            text-align: center;
+            border: 1px solid #d1d5db;
+            padding: 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="container mx-auto">
+        <h1 class="text-3xl font-bold mb-2">호걸커피 오픈 준비 체크리스트</h1>
+        <p class="text-gray-600 mb-6">각 항목의 'Y/N'을 클릭하여 진행 상황을 체크하고, 하단의 총점과 백분율을 확인하세요. 점수 항목을 직접 수정하여 중요도를 조절할 수 있습니다.</p>
+
+        <div class="overflow-x-auto table-container rounded-lg">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs uppercase text-gray-100 bg-gray-800">
+                    <tr>
+                        <th scope="col" class="py-3 px-6 rounded-tl-lg category-cell">카테고리</th>
+                        <th scope="col" class="py-3 px-6 task-cell">TASK</th>
+                        <th scope="col" class="py-3 px-6 score-cell">SCORE</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">8월 26일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">8월 27일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">8월 28일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">8월 29일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">8월 30일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">8월 31일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">9월 1일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">9월 2일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">9월 3일</th>
+                        <th scope="col" class="py-3 px-6 yn-cell">9월 4일</th>
+                        <th scope="col" class="py-3 px-6 rounded-tr-lg yn-cell">9월 5일</th>
+                    </tr>
+                </thead>
+                <tbody id="checklist-body">
+                    <!-- Data rows will be inserted here by JavaScript -->
+                </tbody>
+                <tfoot>
+                    <tr class="summary-row">
+                        <td class="total-score-cell rounded-bl-lg">총점</td>
+                        <td></td>
+                        <td class="score-cell"></td>
+                        <td class="total-score-cell" id="total-score-2025-08-26">0</td>
+                        <td class="total-score-cell" id="total-score-2025-08-27">0</td>
+                        <td class="total-score-cell" id="total-score-2025-08-28">0</td>
+                        <td class="total-score-cell" id="total-score-2025-08-29">0</td>
+                        <td class="total-score-cell" id="total-score-2025-08-30">0</td>
+                        <td class="total-score-cell" id="total-score-2025-08-31">0</td>
+                        <td class="total-score-cell" id="total-score-2025-09-01">0</td>
+                        <td class="total-score-cell" id="total-score-2025-09-02">0</td>
+                        <td class="total-score-cell" id="total-score-2025-09-03">0</td>
+                        <td class="total-score-cell" id="total-score-2025-09-04">0</td>
+                        <td class="total-score-cell rounded-br-lg" id="total-score-2025-09-05">0</td>
+                    </tr>
+                    <tr class="summary-row">
+                        <td class="percentage-cell rounded-bl-lg">백분율 (%)</td>
+                        <td></td>
+                        <td id="total-possible-score-cell" class="score-cell"></td>
+                        <td class="percentage-cell" id="percentage-2025-08-26">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-08-27">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-08-28">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-08-29">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-08-30">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-08-31">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-09-01">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-09-02">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-09-03">0.00%</td>
+                        <td class="percentage-cell" id="percentage-2025-09-04">0.00%</td>
+                        <td class="percentage-cell rounded-br-lg" id="percentage-2025-09-05">0.00%</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <p class="text-xs text-gray-500 mt-4">참고: 이 문서는 PDF 파일에 명시되지 않은 'SCORE' 열에 임의로 3점을 부여했습니다. 실제 중요도에 맞게 점수를 변경하여 사용하세요.</p>
+    </div>
+
+    <script>
+        // PDF에서 파싱된 원본 데이터입니다.
+        const checklistData = [
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "사업자등록증 발급 완료" },
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "사업자 명의 통장 개설" },
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "영업신고증 발급 완료 (구청 위생과, 식품위생법)" },
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "보건증 전 직원 발급 및 제출" },
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "식품위생교육 수료증 확보 (대표자 필수)" },
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "음식 조리·판매 범위 확인 (휴게음식점/제과점/제빵 제조 여부)" },
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "카드사 심사 및 포스·키오스크 결제시스템 등록" },
+            { "카테고리": "1. 인허가 및 행정 절차", "TASK": "현금영수증·세금계산서 발행 시스템 점검" },
+            { "카테고리": "2. 안전 / 소방 / 전기 설비 점검", "TASK": "소화기: 주방용 K급 포함, 매장 내 기준 수량 확보 (30평당 2대 이상)" },
+            { "카테고리": "2. 안전 / 소방 / 전기 설비 점검", "TASK": "비상구 안내판, 피난 경로 표지 설치" },
+            { "카테고리": "2. 안전 / 소방 / 전기 설비 점검", "TASK": "비상조명·비상벨 작동 확인" },
+            { "카테고리": "2. 안전 / 소방 / 전기 설비 점검", "TASK": "전기설비: 차단기 콘센트 멀티탭 안전성, 전력용량(220V / 5kw 이상) 확인" },
+            { "카테고리": "2. 안전 / 소방 / 전기 설비 점검", "TASK": "커피머신·제빙기·냉장고·오븐 등 동시 가동 테스트" },
+            { "카테고리": "2. 안전 / 소방 / 전기 설비 점검", "TASK": "전용회로 확보 (WMF머신 등 고출력 장비는 별도 전력 배선 필요)" },
+            { "카테고리": "2. 안전 / 소방 / 전기 설비 점검", "TASK": "가스/인덕션 사용 시 가스누출감지기 설치, 배관 연결 점검" },
+            { "카테고리": "3. 매장 시설 / 환경 체크", "TASK": "급수/배수 상태 확인 (누수·수압 정상 여부, 연수기·필터 설치)" },
+            { "카테고리": "3. 매장 시설 / 환경 체크", "TASK": "냉난방기 작동 점검" },
+            { "카테고리": "3. 매장 시설 / 환경 체크", "TASK": "환기·배기 덕트 용량 확인, 소음·민원 대비" },
+            { "카테고리": "3. 매장 시설 / 환경 체크", "TASK": "화장실 청결 점검 및 비품(비누·휴지·방향제) 비치" },
+            { "카테고리": "3. 매장 시설 / 환경 체크", "TASK": "출입문에 영업시간·브레이크타임·정기휴무일 표시" },
+            { "카테고리": "3. 매장 시설 / 환경 체크", "TASK": "간판 설치 안전·가시성 확인 (단청·검정 간판 최종 확인)" },
+            { "카테고리": "3. 매장 시설 / 환경 체크", "TASK": "실외 배너. 외부 홍보물 설치 상태 확인" },
+            { "카테고리": "4. 인테리어 / 가구 / 동선", "TASK": "주문 결제 → 대기 픽업 동선 시뮬레이션" },
+            { "카테고리": "4. 인테리어 / 가구 / 동선", "TASK": "바/카운터 레이아웃 및 수납·작업 공간 최적화" },
+            { "카테고리": "4. 인테리어 / 가구 / 동선", "TASK": "외투걸이·보관 바구니 등 고객 편의 용품 비치" },
+            { "카테고리": "4. 인테리어 / 가구 / 동선", "TASK": "내부 한국적 디자인 요소(기와 단청·오방색·블랙 포인트) 확인" },
+            { "카테고리": "4. 인테리어 / 가구 / 동선", "TASK": "조명 색온도(2700~3000K) 통일" },
+            { "카테고리": "5. 기기 / 집기 및 설치", "TASK": "커피머신 설치·시운전 완료 (전력·급수 연결 포함)" },
+            { "카테고리": "5. 기기 / 집기 및 설치", "TASK": "그라인더. 제빙기, 냉장고, 쇼케이스, 오븐 동시 가동 테스트" },
+            { "카테고리": "5. 기기 / 집기 및 설치", "TASK": "POS. 키오스크, DID 메뉴판 설치 및 연동 테스트" },
+            { "카테고리": "5. 기기 / 집기 및 설치", "TASK": "UPS 또는 서지보호기 설치 (POS DID 보호용)" },
+            { "카테고리": "5. 기기 / 집기 및 설치", "TASK": "장비 A/S 연락처·보증기간 문서화" },
+            { "카테고리": "5. 기기 / 집기 및 설치", "TASK": "초기 집기류 구비: 저울, 샷글라스, 계량 스푼, 스팀피쳐, 도마(색상 구분) 등" },
+            { "카테고리": "6. 재고 / 발주", "TASK": "원두, 우유, 크림, 시럽, 컵, 슬리브, 속컵 등 초도 발주 (2주분 확보)" },
+            { "카테고리": "6. 재고 / 발주", "TASK": "발주 담당자 지정, 주기·안전재고 산정 (일평균 사용량×리드타임+2일)" },
+            { "카테고리": "6. 재고 / 발주", "TASK": "잔돈 준비 (권종별 확보)" },
+            { "카테고리": "6. 재고 / 발주", "TASK": "재고 관리표 작성 (일일 소모량/안전재고 현황 기록)" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-1. 레시피 표준화", "TASK": "메뉴별 레시피 문서화 (ml. g, 샷 수, 온도, 토핑 등 기준)" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-1. 레시피 표준화", "TASK": "레시피북·사진·영상 매뉴얼 제작" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-1. 레시피 표준화", "TASK": "조리 순서 및 소요시간 기록 (숙련자 vs 신규 직원 기준)" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-2. 테스트 및 품질 검증", "TASK": "관능평가(맛, 향, 시각) 내부 테스트 피드백 기록" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-2. 테스트 및 품질 검증", "TASK": "직원 3인 이상 동일 레시피 재현성 테스트" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-2. 테스트 및 품질 검증", "TASK": "보관/시간 경과 테스트 (아이스, 크림, 2층컵 이동 등)" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-3. 원가 및 수익성", "TASK": "메뉴별 원가 산정표 작성 (원재료+부재료+소모품)" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-3. 원가 및 수익성", "TASK": "판매가 대비 마진률·수익 포인트 기록" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-3. 원가 및 수익성", "TASK": "원재료 낭비율 측정 및 SOP 반영" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-4. 운영 효율성", "TASK": "메뉴별 평균 소요시간 측정 (아메리카노 1분 / 라떼 1.5분 / 2층컵 2~3분)" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-4. 운영 효율성", "TASK": "동선 충돌 여부 확인, 다수 주문 시 대응 시뮬레이션" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-5. 법규·표기", "TASK": "원산지·알레르기 라벨링 표시 확인" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-5. 법규·표기", "TASK": "메뉴판 최종 점검 (한글·영문 표기, 알레르기 표시)" },
+            { "카테고리": "7. 메뉴 및 레시피 구현 > 7-5. 법규·표기", "TASK": "매장용 샘플 사진 제작" },
+            { "카테고리": "8. 포장 및 브랜딩", "TASK": "2단컵(속컵) 규격·샘플 최종 테스트 (30~50잔)" },
+            { "카테고리": "8. 포장 및 브랜딩", "TASK": "컵홀더 슬리브·포장재 위생·밀폐성 확인" },
+            { "카테고리": "8. 포장 및 브랜딩", "TASK": "간판·내외부 홍보물 최종 승인" },
+            { "카테고리": "8. 포장 및 브랜딩", "TASK": "브랜드 캐릭터·IP 요소 반영 굿즈·포토존 배치" },
+            { "카테고리": "9. 마케팅 / 홍보", "TASK": "SNS 계정 개설(인스타. 네이버) 및 사전 콘텐츠 업로드" },
+            { "카테고리": "9. 마케팅 / 홍보", "TASK": "오픈 이벤트 할인 프로모션 기획" },
+            { "카테고리": "9. 마케팅 / 홍보", "TASK": "현수막·리플렛·외부 배너 설치" },
+            { "카테고리": "9. 마케팅 / 홍보", "TASK": "매장/메뉴 사진 촬영 및 리뷰 관리 체계 준비" },
+            { "카테고리": "9. 마케팅 / 홍보", "TASK": "오픈 프로모션 KPI: 이벤트 종료 후 목표 매출/신규 고객 수 평가 기준" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "슈퍼바이저 채용 및 근무표 작성" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "직원 채용 완료 (파트타이머 포함)" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "오픈/클로즈 매뉴얼 교육" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "고객 응대 멘트·CS 스크립트 교육" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "고객 클레임 대응 시트: 환불, 재제공, 민원 처리 프로세스 문서화" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "위생·안전 교육 및 정기 점검 매뉴얼 배포" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "비상 연락망 공유 (대표. 슈퍼바이저, 장비 A/S, 소방서, 구청 등)" },
+            { "카테고리": "10. 인력 관리 및 교육", "TASK": "폐기 관리: 원부자재별 보관기한·폐기시간대 정리 (ex. 우유 개봉 후 3일, 시럽 1개월 등)" },
+            { "카테고리": "11. 운영 루틴 & 시뮬레이션", "TASK": "오픈 루틴 시뮬레이션 (예열, 세팅, 점검, 재고 확인, 오픈 미팅)" },
+            { "카테고리": "11. 운영 루틴 & 시뮬레이션", "TASK": "클로징 루틴 시뮬레이션 (청소, 백플러시, 정산, 발주 메모)" },
+            { "카테고리": "11. 운영 루틴 & 시뮬레이션", "TASK": "오픈 D-3: 시범 운영 (3일간 운영 시뮬레이션 및 개선)" },
+            { "카테고리": "11. 운영 루틴 & 시뮬레이션", "TASK": "오픈 당일: 전체 동선·메뉴·CS·POS 점검" },
+            { "카테고리": "11. 운영 루틴 & 시뮬레이션", "TASK": "배달앱 운영 가이드 (배민/쿠팡/요기요 메뉴 연동 및 리뷰관리 매뉴얼)" },
+            { "카테고리": "12. 리스크 & 대응", "TASK": "장비 지연→ 예비업체·대체장비 리스트 준비" },
+            { "카테고리": "12. 리스크 & 대응", "TASK": "소방 점검 불량 즉시 시정계획 제출(시공업체 연계)" },
+            { "카테고리": "12. 리스크 & 대응", "TASK": "위생 문제→ 해당 배치 판매중지 원인조사·재발방지 SOP" }
+        ];
+
+        const checklistBody = document.getElementById('checklist-body');
+        const totalPossibleScoreCell = document.getElementById('total-possible-score-cell');
+        const dateRange = ['2025-08-26', '2025-08-27', '2025-08-28', '2025-08-29', '2025-08-30', '2025-08-31', '2025-09-01', '2025-09-02', '2025-09-03', '2025-09-04', '2025-09-05'];
+
+        // 체크리스트 항목을 렌더링합니다.
+        function renderChecklist() {
+            checklistBody.innerHTML = '';
+            checklistData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'bg-white hover:bg-gray-50 transition-colors duration-200';
+                row.innerHTML = `
+                    <td class="px-6 py-4 category-cell font-medium text-gray-900">${item.카테고리}</td>
+                    <td class="px-6 py-4 task-cell text-gray-700">${item.TASK}</td>
+                    <td class="px-6 py-4 score-cell"><input type="number" value="3" min="1" max="5" class="score-input" onchange="calculateTotals()"></td>
+                    ${dateRange.map(date => `<td class="px-6 py-4 yn-cell" data-date="${date}" data-status="N">N</td>`).join('')}
+                `;
+                checklistBody.appendChild(row);
+            });
+            calculateTotals(); // 초기 렌더링 후 총점 계산
+        }
+
+        // 총점과 백분율을 계산하는 함수입니다.
+        function calculateTotals() {
+            let totalPossibleScore = 0;
+            const scoreInputs = document.querySelectorAll('.score-input');
+            scoreInputs.forEach(input => {
+                totalPossibleScore += parseInt(input.value) || 0;
+            });
+
+            totalPossibleScoreCell.textContent = totalPossibleScore;
+
+            dateRange.forEach(date => {
+                let dailyScore = 0;
+                const completedTasks = document.querySelectorAll(`td[data-date="${date}"][data-status="Y"]`);
+                
+                completedTasks.forEach(cell => {
+                    const scoreInput = cell.parentNode.querySelector('.score-input');
+                    dailyScore += parseInt(scoreInput.value) || 0;
+                });
+                
+                // 총점 업데이트
+                const totalScoreCell = document.getElementById(`total-score-${date}`);
+                if (totalScoreCell) {
+                    totalScoreCell.textContent = dailyScore;
+                }
+
+                // 백분율 업데이트
+                const percentageCell = document.getElementById(`percentage-${date}`);
+                if (percentageCell) {
+                    const percentage = totalPossibleScore > 0 ? (dailyScore / totalPossibleScore) * 100 : 0;
+                    percentageCell.textContent = percentage.toFixed(2) + '%';
+                }
+            });
+        }
+
+        // 'Y/N' 셀 클릭 이벤트 핸들러입니다.
+        checklistBody.addEventListener('click', (e) => {
+            const cell = e.target.closest('.yn-cell');
+            if (cell) {
+                const currentStatus = cell.getAttribute('data-status');
+                if (currentStatus === 'N') {
+                    cell.setAttribute('data-status', 'Y');
+                    cell.textContent = 'Y';
+                    cell.classList.add('checked');
+                } else {
+                    cell.setAttribute('data-status', 'N');
+                    cell.textContent = 'N';
+                    cell.classList.remove('checked');
+                }
+                calculateTotals();
+            }
+        });
+
+        // 페이지 로드 시 체크리스트를 렌더링합니다.
+        window.onload = renderChecklist;
+    </script>
+</body>
+</html>
